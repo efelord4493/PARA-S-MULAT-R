@@ -28,6 +28,7 @@ const collectButton = document.getElementById("collectButton");
 const logoutButton = document.getElementById("logoutButton");
 const gameMessage = document.getElementById("gameMessage");
 const shopList = document.getElementById("shopList");
+const leaderboardList = document.getElementById("leaderboardList");
 
 let state = loadState();
 let currentUser = state.currentUser || null;
@@ -72,8 +73,10 @@ function saveState() {
 function hydrateUser(user) {
   user.money = Number(user.money || 0);
   user.baseIncome = Number(user.baseIncome || 1);
+  user.bestScore = Number(user.bestScore || 0);
   user.avatar = user.avatar || defaultAvatar;
   user.upgradePrices = user.upgradePrices || createUpgradePrices();
+  updateBestScore(user);
 }
 
 function createUpgradePrices() {
@@ -91,6 +94,7 @@ function createUser(username, password, avatar) {
     avatar: avatar || defaultAvatar,
     money: 0,
     baseIncome: 1,
+    bestScore: 0,
     upgradePrices: createUpgradePrices()
   };
 }
@@ -206,6 +210,11 @@ function buyUpgrade(id) {
 }
 
 function sync(message) {
+  const user = getUser();
+  if (user) {
+    updateBestScore(user);
+  }
+
   saveState();
   renderApp();
   if (message) {
@@ -227,6 +236,7 @@ function renderApp() {
   const user = getUser();
   if (!user) return;
 
+  updateBestScore(user);
   welcomeName.textContent = user.username;
   profileAvatar.src = user.avatar || defaultAvatar;
   moneyStat.textContent = `${formatNumber(user.money)} TL`;
@@ -247,6 +257,60 @@ function renderApp() {
   document.querySelectorAll("[data-upgrade-id]").forEach((button) => {
     button.addEventListener("click", () => buyUpgrade(button.dataset.upgradeId));
   });
+
+  renderLeaderboard();
+}
+
+function updateBestScore(user) {
+  user.bestScore = Math.max(Number(user.bestScore || 0), Number(user.money || 0));
+}
+
+function getLeaderboardEntries() {
+  return Object.values(state.accounts)
+    .map((account) => {
+      hydrateUser(account);
+      return {
+        username: account.username,
+        bestScore: Number(account.bestScore || 0),
+        income: Number(account.baseIncome || 1)
+      };
+    })
+    .sort((left, right) => {
+      if (right.bestScore !== left.bestScore) {
+        return right.bestScore - left.bestScore;
+      }
+
+      return right.income - left.income;
+    })
+    .slice(0, 20);
+}
+
+function renderLeaderboard() {
+  if (!leaderboardList) return;
+
+  const entries = getLeaderboardEntries();
+  if (!entries.length) {
+    leaderboardList.innerHTML = `
+      <article class="leaderboard-empty">
+        Henuz kayitli skor yok. Ilk siraya yerlesmek icin oyuna basla.
+      </article>
+    `;
+    return;
+  }
+
+  leaderboardList.innerHTML = entries.map((entry, index) => `
+    <article class="leaderboard-item">
+      <div class="leaderboard-rank">${index + 1}</div>
+      <div class="leaderboard-meta">
+        <strong>${entry.username}</strong>
+        <span>Gelir: ${formatNumber(entry.income)} TL / sn</span>
+      </div>
+      <div class="leaderboard-score">
+        <strong>${formatNumber(entry.bestScore)} TL</strong>
+        <span>En iyi skor</span>
+      </div>
+    </article>
+  `).join("");
 }
 
 function formatNumber(value) {
