@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Idle Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      background: #111;
+      color: white;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>👶 Baby Idle Game</h1>
+<h2 id="count">0</h2>
+
+<p>Saniyelik artış: <span id="rate">1</span></p>
+
+<button onclick="clickBaby()">+1</button>
+<button onclick="buyUpgrade()">Upgrade (10)</button>
+
+<script>
+let babies = 0;
+let rate = 1;
+let upgradeCost = 10;
+
+// Güncelleme
+function update() {
+  document.getElementById("count").innerText = Math.floor(babies);
+  document.getElementById("rate").innerText = rate;
+}
+
+
+setInterval(() => {
+  babies += rate;
+  update();
+}, 1000);
+
+
+function clickBaby() {
+  babies++;
+  update();
+}
+
+
+function buyUpgrade() {
+  if (babies >= upgradeCost) {
+    babies -= upgradeCost;
+    rate += 1;
+    upgradeCost = Math.floor(upgradeCost * 1.5);
+  } else {
+    alert("Yetersiz!");
+  }
+  update();
+}
+
+update();
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Baby Idle Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      background: #111;
+      color: white;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .shop {
+      margin-top: 20px;
+      border-top: 1px solid white;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>👶 Baby Idle Game</h1>
+<h2 id="count">0</h2>
+
+<p>Saniyelik artış: <span id="rate">1</span></p>
+
+<button onclick="clickBaby()">+1</button>
+
+<div class="shop">
+  <h3>🛒 Shop</h3>
+
+  <button onclick="buy1()">+1/s (10)</button>
+  <button onclick="buy2()">+5/s (50)</button>
+  <button onclick="buy3()">x2 Çarpan (100)</button>
+
+</div>
+
+<script>
+let babies = 0;
+let rate = 1;
+
+// Güncelle
+function update() {
+  document.getElementById("count").innerText = Math.floor(babies);
+  document.getElementById("rate").innerText = rate;
+}
+
+// Otomatik artış
+setInterval(() => {
+  babies += rate;
+  update();
+}, 1000);
+
+// Tıklama
+function clickBaby() {
+  babies++;
+  update();
+}
+
+// Upgrade 1
+function buy1() {
+  if (babies >= 10) {
+    babies -= 10;
+    rate += 1;
+  } else {
+    alert("Yetersiz!");
+  }
+  update();
+}
+
+// Upgrade 2
+function buy2() {
+  if (babies >= 50) {
+    babies -= 50;
+    rate += 5;
+  } else {
+    alert("Yetersiz!");
+  }
+  update();
+}
+
+// Upgrade 3 (çarpan)
+function buy3() {
+  if (babies >= 100) {
+    babies -= 100;
+    rate *= 2;
+  } else {
+    alert("Yetersiz!");
+  }
+  update();
+}
+
+update();
+</script>
+
+</body>
+</html>
